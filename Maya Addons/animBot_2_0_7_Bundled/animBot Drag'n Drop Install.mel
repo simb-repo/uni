@@ -1,0 +1,890 @@
+
+// ========================================================================================================================
+// Author: Alan Camilo (linkedin.com/in/alan-camilo-b2855610)
+//
+// ------------------------------------------------------------------------------------------------------------------------
+// To install animBot, drag this file over Maya's viewport
+//
+// ------------------------------------------------------------------------------------------------------------------------
+// To unistall, go to animBot menu/system/uninstall
+//
+// ========================================================================================================================     
+
+global proc animBotInstall() {
+
+    python("\n\
+\n\
+import os, shutil\n\
+import sys\n\
+from maya import cmds, mel\n\
+import maya.utils\n\
+import webbrowser\n\
+import socket\n\
+import math\n\
+from datetime import datetime, timedelta\n\
+import zipfile\n\
+import encodings\n\
+\n\
+try:\n\
+    import urllib2\n\
+except ModuleNotFoundError:\n\
+    \n\
+    import urllib.request as urllib2\n\
+\n\
+try:\n\
+    from animBot._api.core import CORE as ANIMBOT_CORE\n\
+\n\
+    o_____o_____0____1____l___O____l_1_1_o____l_O_0__0____o__O_1___l_o____0_o_o__O_o__1_l_____0____1___l_o____l_____0___0__l___l_____0_1 = ANIMBOT_CORE.animBotVersionNumber\n\
+    o_1__0____1_____O___O__1__o____o__l____0_____o___o____o_o____l__0__O_____o____o_1__1____l____l_O_____o___O_1_____0____l_o____0____l___l___0_____O_____O__O__O___o = True\n\
+    o_O____l_____o___1___l__l____1__O__o___o____O_____o___0____l___1_o_0____0___l_o___o_O____l___o____O__o_____O_____O___O_____o_o___0_____O__l____1_____o__O_1_o___O = False\n\
+\n\
+except ImportError:\n\
+    o_1__0____1_____O___O__1__o____o__l____0_____o___o____o_o____l__0__O_____o____o_1__1____l____l_O_____o___O_1_____0____l_o____0____l___l___0_____O_____O__O__O___o = False\n\
+    o_O____l_____o___1___l__l____1__O__o___o____O_____o___0____l___1_o_0____0___l_o___o_O____l___o____O__o_____O_____O___O_____o_o___0_____O__l____1_____o__O_1_o___O = False\n\
+except TypeError:\n\
+    \n\
+    o_O____l_____o___1___l__l____1__O__o___o____O_____o___0____l___1_o_0____0___l_o___o_O____l___o____O__o_____O_____O___O_____o_o___0_____O__l____1_____o__O_1_o___O = True\n\
+    o_1__0____1_____O___O__1__o____o__l____0_____o___o____o_o____l__0__O_____o____o_1__1____l____l_O_____o___O_1_____0____l_o____0____l___l___0_____O_____O__O__O___o = False\n\
+\n\
+\n\
+o____1__0____O__1__0__1__o____o____1____o__o_o_o_____o_____1____1_____0_0_o__o_1___1_____O_____0_0____o = str(cmds.about(operatingSystem=True))\n\
+o____o____O_O___l___l_o____0___O___1_o___l__l_____1____o____o = float(\"%s.%s\" % (str(cmds.about(apiVersion=True))[:4], str(cmds.about(apiVersion=True))[4:]))  \n\
+o__O__O___o____l_____0__l_____0____l___O__1_O___1_1__l_o___o_____l___0_0___O__0_____0_l___l___O_____1____1_o_____l = sys.version_info[0]\n\
+\n\
+\n\
+if o____o____O_O___l___l_o____0___O___1_o___l__l_____1____o____o >= 2025:\n\
+    from PySide6.QtCore import *\n\
+    from PySide6.QtWidgets import *\n\
+    from PySide6.QtGui import *\n\
+elif o____o____O_O___l___l_o____0___O___1_o___l__l_____1____o____o >= 2017:\n\
+    \n\
+    from PySide2.QtCore import *\n\
+    from PySide2.QtWidgets import *\n\
+    from PySide2.QtGui import *\n\
+else:\n\
+    from PySide.QtCore import *\n\
+    from PySide.QtGui import *\n\
+\n\
+o_1_____O____o_1____0_0_____0_l_o__1___0_____o_O_0_o_o_____0_____0_O__O_____0_O__0___l__l = \"http://www.animbot.ca\"\n\
+o____0_____O___l___l__o_o_o____o_o___l___0____0__O___0_o____1_____1___0___O____1___1 = \"animbot.ca\"\n\
+o__O_____l___0_____0__l__o___1_0__l____O___o_o__O_o____0_l_l_o = \"http://www.linkedin.com/in/alan-camilo-b2855610/\"\n\
+o_1_____O_____O_____o_____o_1_____0__o___1___0__o_____l_____1_____0_____0_o__o__0__0___1__1___l__o__1_____l_1__1_o_____1____o_1____o_____O___O__0___O_____1__O_l_1____O = \"%s/download/files/\" % o_1_____O____o_1____0_0_____0_l_o__1___0_____o_O_0_o_o_____0_____0_O__O_____0_O__0___l__l\n\
+o__l_____0___O_o__0__l_o___O__O___1_O___0___l____l___l_____0___O__o_____o_____1_____1___o_o_o_____1___o_1_____l____1____1_____o_____0___o____0_o____1____1___1___o_l_1__0____0_o = \"%s/__latestVersion.txt\" % o_1_____O_____O_____o_____o_1_____0__o___1___0__o_____l_____1_____0_____0_o__o__0__0___1__1___l__o__1_____l_1__1_o_____1____o_1____o_____O___O__0___O_____1__O_l_1____O\n\
+o____o_0_O____1____1_____o__1_o____l_____O____o_o__0____o__1___o_____o_o_____l_1____O__1_____O = {\"mac\":     \"$HOME/Library/Preferences/Autodesk/maya/scripts\",\n\
+                        \"linux64\": \"$HOME/maya/scripts\",\n\
+                        \"win64\":   \"/Users/<username>/Documents/maya/scripts\"\n\
+                        }\n\
+\n\
+o____0____O_0____o_____1___o____1_____0_o__o____0___1_0_0___1 = os.getenv(\"TMPDIR\")\n\
+o____o_1_o_____0__0__l____O_o___1____1___0__O___o_l__l____1 = os.getenv(\"MAYA_APP_DIR\")\n\
+o_0___l_l___l____l_____l___o_O____l_____o_____0_1____o___l_____0_o____1_1___l_____O____0_O_o____o__0_1____0_____l_0_____1_o___O_0___l___O_0_____o = os.path.join(o____o_1_o_____0__0__l____O_o___1____1___0__O___o_l__l____1, \"scripts\", \"animBot\")\n\
+\n\
+\n\
+class o____O____l_0_____O_____1____o_____O():\n\
+    \n\
+\n\
+    def __init__(o__0_____o____O_l__O____0, o_____l____o_____o__O__o):\n\
+        \n\
+        o__0_____o____O_l__O____0.o_____l____o_____o__O__o = o_____l____o_____o__O__o\n\
+\n\
+        if o__O__O___o____l_____0__l_____0____l___O__1_O___1_1__l_o___o_____l___0_0___O__0_____0_l___l___O_____1____1_o_____l < 3:\n\
+            o__0_____o____O_l__O____0.o_____l____o_____o__O__o = o_____l____o_____o__O__o.encode(\"utf-8\")\n\
+        else:\n\
+            o__0_____o____O_l__O____0.o_____l____o_____o__O__o = bytes(o_____l____o_____o__O__o, \"latin\")\n\
+\n\
+    def o__0____0_l_o__O_____O(o__0_____o____O_l__O____0):\n\
+        \n\
+\n\
+        pixmap = QPixmap()\n\
+        o__l___O____O_____0_____0__O_____1_____o___1____O = QByteArray.fromBase64(o__0_____o____O_l__O____0.o_____l____o_____o__O__o)\n\
+        pixmap.loadFromData(o__l___O____O_____0_____0__O_____1_____o___1____O)\n\
+\n\
+        return pixmap\n\
+\n\
+\n\
+\n\
+\n\
+\n\
+\n\
+\n\
+\n\
+\n\
+o_____o____0__O_____1____l__0_0____o____o_____O_____o = \"\"\"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\"\"\"\n\
+o___l_____o_____o_0____l__O___o_1____O_o_____0_____0_____O___O_____l___O__0___l_O_____0____o_____o___O___l___l = QPixmap(o____O____l_0_____O_____1____o_____O(o_____o____0__O_____1____l__0_0____o____o_____O_____o).o__0____0_l_o__O_____O())\n\
+\n\
+o_____o____0__O_____1____l__0_0____o____o_____O_____o = \"\"\"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\"\"\"\n\
+o____O_o___O___0__0_____l____0____l___1_____1__O_O__0___l__O_o__1_l____1___l___0_0_____o___1_1__1_____0 = QPixmap(o____O____l_0_____O_____1____o_____O(o_____o____0__O_____1____l__0_0____o____o_____O_____o).o__0____0_l_o__O_____O())\n\
+\n\
+o_____o____0__O_____1____l__0_0____o____o_____O_____o = \"\"\"iVBORw0KGgoAAAANSUhEUgAAAFgAAABYCAYAAABxlTA0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEwAACxMBAJqcGAAAA2NJREFUeJztnN9RGzEQh3+ryTvuIHQAqSCOzn4OJUAFoYO4BKeCpAR4PkvjdGA6oATTgDYvx4xjwv3x7Z7kyX5v3N5I6w8h6eQ9AMMwDMMwDMMwDMMwDMMwDON/gHIn0JcY4+fDn733v3PlMoTiBdd1feGcewYwO7zOzNvFYvElT1b9cbkT6MI5t8aRXAAgonkI4XuGlAZRvGAANy2x+8myOJFzEPxm9PaMFcE5CD5rTLAyJlgZE6yMCVbGBCtjgpX5oNHoZrP5hr8fEPbOuZX3/kmjv6HEGK9SSuvDa865tff+Ubov8bOIGONXZn74R+g5pXS9XC5fhrQXQuC2eFVVgz5Dc7axA3B5FNoT0Vx6EIhPESml1TuhSyLa1nV9Id1nX+q6viCiLd7KBYDZ8aiWQFwwEV23xXJJfpXbkd9cut/JF7kckvvI1UJcMDNvu+6ZUvIQuX1yH4q4YOfcPYB9131TSB44cvdN7qKIC/bePzVzWVbJQ+Vq7CAApTk4t+RS5AKKi1wuySXJBZR3EVNLLk0uMME2bSrJJcoFJtoHa0suVS4wcV1EjPGq2Wt2flnJzDtmnjvnWn8pKaVZqXKBDIUnQyV3ietzT8PkcoFMlT1DJAuRRS6QsXRqQsnZ5AKZa9MmkJxVLlBA8Z+i5OxygQIEAyqSi5ALFCIYEJVcjFygIMGAiOSi5AKFCQZGSS5OLiAoWLLE/wTJo+VqvaIwWrBWif8AyaPkar+iMPqwR6vEv+cB0eiRq/2KgsRpmlqJfyP59p2w1Jyr+oqChGDVEn/v/SMRXTPz7vUaM29TSpdCC5pq/iq1adI0Ij/lzuMU1A/cY4xX2n2cyvHOQYPRgruKNVJK87F9aJFSap1jJQpRRk8RRPTcEV9tNhsw86+hlZVahBA+MvOaiNoWOBDRri3eh9GCmXnbstIDwIyI1kS0DiGM7U4Mou5HgKYScxQSU8QDenyZeYbsJQqyRwtu/uzF62pzw8wriXZEdhEppfXhPvXcYebdYrH4IdGWiODlcvnCzHON8s+pYeYtM8+l2hM/rgwh/ARwK93uRPyqqupOskHxB42qqu6Y+RZntvAx8720XEDxwL0pZ7oBcNOcihX3rweaKe2hpD26YRiGYRiGYRiGYRiGYRiGYRiGYRjD+AN6etoeN+hk/AAAAABJRU5ErkJggg==\"\"\"\n\
+o___O__0_____l_0_1___o__l_O__1_____0_____o____o_o__l____o____O____1___o_____l____O____1__l____l_0 = QPixmap(o____O____l_0_____O_____1____o_____O(o_____o____0__O_____1____l__0_0____o____o_____O_____o).o__0____0_l_o__O_____O())\n\
+\n\
+o_____o____0__O_____1____l__0_0____o____o_____O_____o = \"\"\"iVBORw0KGgoAAAANSUhEUgAAAFgAAABYCAYAAABxlTA0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEwAACxMBAJqcGAAABDdJREFUeJztnN9x20gMxoH1vec6iDowOzhGpJ+jVGCmAisVWCXwKgjTge6Zuzu8DpQOdB0wBYjfPWQ1o3go/pF2KcbG79FcEfI3MAACoIkEQRAEQRAEQRAEQRAEQRAEQRAEQQgJ3/oLtGGtvW+aJmLmCEDUcbRm5h0zV4fDYffw8PBjjB2t9WOapt+u/LqdzEZga+09gIyIMiL685J7ANgqpYrD4VD1ia21fmTmIkmSoBrcXGBr7V9N06yZeeXxtnsAOYCiTeijuEREr1ZgY8x7ALlnYV+yZ+ZsuVz+e/zBqbhEr1Rga+1HAAVdGArGAmALIGPm1am4ROEF/iPkzdswxjwD2Exp0wm7I6LFlHaJJhbYGPOVfiaxW7C4hVE1lSGt9RPdTtybMYkHu8SSj/zYnogqAJVSat92oGmaiIjiwInyKoInOVff7oaeB1ARUTHmAaAsy3fMnDHzmkaGgt+6ijDGvCeiHQ2rFmpXUv1zjU2t9RMzbwbaDC5w0BgMIKcBvyiAHTPH14rrqIfYnIpgMdjVukNi4x5AvFwuR/UR2nj5EDEHgnmw894+amZejW3StDFHcYkCCay1fqT+ZFO7sPDdh705iksUzoPXfQdcQnvV4hIFqCJc5bDvOgNgm6bpJ9+254h3Dx6S2Fy9+iYIESLirosAtkmS/BfA7izxLjAzx50GlSp825wzXuvgsizfUU+RfzgcKp82L8E9vr8MZUWIvyyvAt/d3UUAuo7sfdS819DRG8nKsox8f7/J2pVERAD2U9pro2mazZlLC6XU2I5fL5MKPAd6WpuZb3tvTuCp8Sqwm97WHUcKn/Z+B0I8aKypXeQ89BZNH9ba+6ltehc4TdNvrhYuAFQAKmZeJUnyxbetC1h0XXTTFK8E6Qe7Js7nEPe+BgBx13Vm3vu2+daSXGefZMzscChvRuAhPWqllAh8KW4Q2kV9usPmi6B7EcaYZyLaXPhxnxOPJ+qfsBTX2mljrh7sTVxr7f3ApRfvj8lE8xTYq7hDSi8AVage9dwE9inuRydu746EUirYhGVOAnudMgPY0rAFlI0Pm+eYjcCulbm49j7GmOehU2YAu6ZpgsTeI5MvYJ/DvVG01VpvlVL52JLJ1blrIup6K+kXlFKZj42iLmYj8BFmXgFYaa13RJQz89kEdDL6yWik9zPzKmRoODI7gY8wc0SuNjXGtJ7pGU+dBUCWJImPRcNeZitwIGpmjpMkCe65R26R5GrqbsoHs+urShnD1ALXzBwzcxyi93qOk/3jScUlmjZEvPSgD24bPWiZREQ5gE3oauEcU3lw659nmqZ/nyYzn7hJSpQkyZdb7mJM4cGdse84/bDW5te+DE4/Y/uWmfMpE1kXQV8A0Vo/KaWqsbHP9RFiAFHfrpvz1OO/NOh9y14QBEEQBEEQBEEQBEEQBEEQBEEQhNfF/8ua46YfJ7fiAAAAAElFTkSuQmCC\"\"\"\n\
+o_l_l_0____0_0_O___o__0_1_O_1_o__0_O_1____l_O____0____O = QPixmap(o____O____l_0_____O_____1____o_____O(o_____o____0__O_____1____l__0_0____o____o_____O_____o).o__0____0_l_o__O_____O())\n\
+\n\
+o_____o____0__O_____1____l__0_0____o____o_____O_____o = \"\"\"iVBORw0KGgoAAAANSUhEUgAAAFgAAABYCAYAAABxlTA0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEwAACxMBAJqcGAAAA7lJREFUeJztm8tx2zAQhv9lA3YHdiqwO4iGpM5xB6Y7UAdRKohSQeQO5DMfo3Qgd6B0IDfAzSHgjOwhJQDCgvTMfleCXPIbEI8FACiKoiiKoiiKoiiKoiiKoiiKoiiKoijKECT14LqubwAUzDwDACLatW27nM/nb1IxbWia5o6ZF8x8a95rT0SrNE1fJeKJCK7r+ieARc+ldZZlTxIxbSjL8oqItkR0//EaEd1LSA4u2NSQ3Yki67ZtF7Frcl3XN8y86ZNr2GdZ9iV03CT0A5n54UyRgoi2ZVlehY49RNM0dwB2J+QCwK1EbAnBh3NliOg+lmTzR20BXEvH6iO44CRJtjblYkh2kXumWfMmuOA0TV+ZeWNTlojukyTZm184KFVVPRpptjV3HfodAAHBAMDMhUONuGbmbUjJVVU9EtHa4ZZ1nue/QsU/RkTwfD5/Y+aZ+T1tCCbZQ+5KcugoNtHoqOv6N4DCsviBmRd5nj97xhoaf/fCzIVvLFvEBQPOkr0+PEYMH6IIBmQFTFUuEFEw4NU+LrMs+zF00Ux910R0bnLTcSCimVTeoY+oggG/Hr6vEzqVVxggulxgBMHA5ZI/i1xgJMEA0DTNVzMhsZ4ItG27SJLk+kzS5h3MvCOihyzL/vq/rT+jCQbc8wRG1q1LeWaejZmDHlUwIJeMmYJcQGgm50Kapq9ENAuZbGHmzRTkAhOowR0eHdcQo66afGQygoEgkiclF5hAE3GMR5LoGNGkjS+TEgz8l0xEW8fbDh73RGFSTQTgnlc4JmaOwZZJCb5EbsfUJE9CcFmWV0mSrHCh3A6TUxZZoXBldMEBh2cfmcSIYtROzidp4/D4wjQ5ozKaYFe5Jg8xM7lfW9GjSx6lifBJ8hxPfS+9PybRBYeS81kkR20iPKRsh6R0SSIAe5tnxdyu9S5urEBmFWMFhwS7zSjAo6PcE9FDrNWNKIJDrcMNMeUlJHHB0nI7pipZVHBd198BLG3Lh5jmuu4kIqIiTdOXS2KeQvKMxmibQaa0EUVEsGuzIPGBrpJNxxe8JosM04hoaVn0QEQzidqTZdkTM1tvBGzbdhn6HQABwVVVPcLuvEPXyfwJ/Q4deZ7/YubCpqxAsgmAgGCzb+Ec0YZJeZ4/20qWQELwyeMDXdIm5jamPM+fLZJEe4nYImc0AKz6rnX5gDH2iKVp+mKm1n2S9w47NJ0QG6Y1TfOtbdvjTmbNzJuxN4P0HPHdj3EwUlEURVEURVEURVEURVEURVEURVEURVGAf9l4XANGvwF5AAAAAElFTkSuQmCC\"\"\"\n\
+o_____1____l_l_____0_____1____1_____o____l___o_o____l_____1_____O____O____O_1__0__O_____0_1__o____l_____0_o = QPixmap(o____O____l_0_____O_____1____o_____O(o_____o____0__O_____1____l__0_0____o____o_____O_____o).o__0____0_l_o__O_____O())\n\
+\n\
+o_____o____0__O_____1____l__0_0____o____o_____O_____o = \"\"\"iVBORw0KGgoAAAANSUhEUgAAAFgAAABYCAYAAABxlTA0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEwAACxMBAJqcGAAABHhJREFUeJztm81uE0kQx6tmBomglTKOfQJWsYS01xgJDpwwQXDYgOANNm+AeQL8BvjGlTsXIJiLFRveIJwREgiWE6sdLiFh7SkOHlYBO+6e6a9KqN/R09Nd+qvcXVNVDSAIgiAIgiAIgiAIguAPDG2ADsOtdA0x7gBgs/hpJ8dx7+pG9i6cVXqwF3i4la4hxC8AMf3hAVFGMGmv38xeBTJNiyi0ASoQk96MuNMHKWLSC2BSKVgLPHzeuAwA7QVD2sUYtrAWGHN6aGNMSNgKPNpauXPgUFsANkf9xj231lSH5SE3GNSWk73o7dy9dx5E2fhk3rx27d/Pjk0rDUsPTr7GHW1xAQAQ02Q/YnngsfPg7X66GlHytsq7ROMWt7CNnQdHeVzZEzmGbawEHj5vXAbE2wZTtEfP6n9ZM8gCrATGHGx4YHcwqC1bmMcKbAQuPK9lPhM2k69xx3weO7A45EqHZSqIsjyatDgkg1h4cOmwTAVianJY2iS4B2/309Uoj3d+Fvj93zE8evqb1hyXLuzBpYv7M79TBO31Pz+9tGNpNZKQiwMARBR353nvl70IXr85oTXHH+f+m/t7cWieNzLQkKBbxDQThpsOl2iFDtuCCow5dJ0vQtALGbYFE7jwrPZhzw/725cei5iGDNuCCFx4VNfbggTd7X666m29AwQReOpR2PS5ZkTJQ5/r/b+u7wUHg9oy5BTiLxukvORd4GQ/ml/E9ECI8pJXgYdb6ZrjsEwBNqelKH94FZhHvha9Ztu8CTzs12/B4hL8DGdPj62OAwDv5SVvAiOVz/UuLZHWuFOa4w5YszndrtzjReBpWR2bPtbSxdd25VzggGGZinaxbTnFucDJ/vxsGQfQQ57CqcDF5ylH7y1wX15yKnCoz9NS5NRxmadwJrBGZ6SSem2iHLOiMWYhiGlEcddsksNxJrCNz9L6Sm5ljBrcdJWncCKwfmckHyz1ZMxgXeDpqYxd2/N6wEl5ybrAnMMyJQ7CNqsC8w/LFDgoL1kVmEuzhxGWy0vWBLbQGTnD0kl1hHBKY0xZbMbv1gR2cQr/fkYd457VGFMBa+UlKwLb64zkg63ykrHAg0FtGSrkevljp7xk3Pw36jfuAbnpcdj9gvDh4+L2uXptYulrbg4Wbi8ZCWxyYeUI0bty49Pdqi8bbREukySM6JiUlyoL7KEzkg0m5aXKW8ToWWMEhunIRejsv99xug8XENLt9Y1/npR9r1IDtqoz0gYfPiZw/4FeWmDj+i7cuL7r0pzvVfHSApfeIrx3RrKh2qXz0gKH6IxkQ4XyUimBt/vpKtMSvB8qlJdKCXzYhZVfi3LlJW2Bw3dG8qHM3RJtgXl0RrJB+9K5Vhw87NdvIeFjM5uOGZp5Ci0PrtIZeezRLC8pBebYGckGjfKS2oPJ7RfbUQcxaS56zuK2/XFGR+Ad51YcVYgy1W1+pcA5jntAlNmz6phAlFEEm6phSoGvbmTvCCZtIJIwbcoOED3Oo0mrSvpSEARBEARBEARBEATBJd8A0FxuhIhfSLMAAAAASUVORK5CYII=\"\"\"\n\
+o__l__l_o____1_____o_____O___o__l____0__1_o____O____O_o___l__o____O____o__1__0_0___l_o____0_o_O__o___0_____o__0____l = QPixmap(o____O____l_0_____O_____1____o_____O(o_____o____0__O_____1____l__0_0____o____o_____O_____o).o__0____0_l_o__O_____O())\n\
+\n\
+\n\
+class o_l___0____l_l__O____o_O__0():\n\
+    \n\
+\n\
+    @property\n\
+    def o____1____l__o____l_O_0__o__O____1_____O___l__l_____l_____o(o__0_____o____O_l__O____0):\n\
+        \n\
+        o_O___0_0_l__1__O___1____1 = mel.eval('$temp=whatIs( \"animBotInstall\" )')\n\
+        o_1___1___1___l_____l_____o__1 = ' '.join(o_O___0_0_l__1__O___1____1.split(' ')[4:])\n\
+\n\
+        if o__O__O___o____l_____0__l_____0____l___O__1_O___1_1__l_o___o_____l___0_0___O__0_____0_l___l___O_____1____1_o_____l < 3:\n\
+            o_1___1___1___l_____l_____o__1 = o_1___1___1___l_____l_____o__1.encode(\"utf-8\")\n\
+\n\
+        return os.path.dirname(o_1___1___1___l_____l_____o__1)\n\
+\n\
+\n\
+    @property\n\
+    def animBotDragNDropPackage(o__0_____o____O_l__O____0):\n\
+        \n\
+        return os.path.join(o__0_____o____O_l__O____0.o____1____l__o____l_O_0__o__O____1_____O___l__l_____l_____o, \"animBot\")\n\
+\n\
+    @property\n\
+    def o__l__0____l___0___l___O___o___o_____o(o__0_____o____O_l__O____0):\n\
+        \n\
+        return os.path.join(o____o_1_o_____0__0__l____O_o___1____1___0__O___o_l__l____1, \"scripts\", \"animBot\")\n\
+\n\
+    @property\n\
+    def o_____1____1_____O_1___l(o__0_____o____O_l__O____0):\n\
+        \n\
+\n\
+        \n\
+        n = 1\n\
+        o_____1____1_____O_1___l = os.path.join(o____0____O_0____o_____1___o____1_____0_o__o____0___1_0_0___1, \"animBot_outdated_%s\" % n)\n\
+        while True:\n\
+            if not os.path.isdir(o_____1____1_____O_1___l):\n\
+                break\n\
+\n\
+            o_____1____1_____O_1___l = \"%s(%s)\" % (o_____1____1_____O_1___l, n)\n\
+            n += 1\n\
+\n\
+        return o_____1____1_____O_1___l\n\
+\n\
+    @property\n\
+    def o____l__O___l_O___1___0_O__1_o_O(o__0_____o____O_l__O____0):\n\
+        \n\
+        return os.path.join(o____0____O_0____o_____1___o____1_____0_o__o____0___1_0_0___1, \"animBot_download_%s.zip\" % o__0_____o____O_l__O____0.o_____0____O___0__1____1.replace(\".\", \"_\"))\n\
+\n\
+    @property\n\
+    def tmpAnimBotPath(o__0_____o____O_l__O____0):\n\
+        \n\
+        return os.path.join(o____0____O_0____o_____1___o____1_____0_o__o____0___1_0_0___1, \"animBot_%s\" % o__0_____o____O_l__O____0.o_____0____O___0__1____1.replace(\".\", \"_\"))\n\
+\n\
+    @property\n\
+    def installFolderAnimBotVersionNumber(o__0_____o____O_l__O____0):\n\
+        \n\
+        o__0____0__O___1__O_o___o = o__0_____o____O_l__O____0.o____1____l__o____l_O_0__o__O____1_____O___l__l_____l_____o in sys.path\n\
+        if not o__0____0__O___1__O_o___o:\n\
+            sys.path.insert(0, o__0_____o____O_l__O____0.o____1____l__o____l_O_0__o__O____1_____O___l__l_____l_____o)\n\
+\n\
+        \n\
+        try:\n\
+            from animBot._api.core import CORE as ANIMBOT_CORE_INSTALLATION\n\
+            animBotVersionNumber = ANIMBOT_CORE_INSTALLATION.animBotVersionNumber\n\
+        except:\n\
+            animBotVersionNumber = None\n\
+\n\
+        \n\
+        if not o__0____0__O___1__O_o___o:\n\
+            sys.path.remove(o__0_____o____O_l__O____0.o____1____l__o____l_O_0__o__O____1_____O___l__l_____l_____o)\n\
+\n\
+        return animBotVersionNumber\n\
+\n\
+    def o____1_O____1___l__1_O_o_l____O_1_o____o_o(o__0_____o____O_l__O____0):\n\
+        \n\
+        o__0_____o____O_l__O____0.o_____o_____l__0_____O___o_l__O__l_____o____0____0_o = o_____l____1___l__1___0___o()\n\
+        o__0_____o____O_l__O____0.o_____o_____l__0_____O___o_l__O__l_____o____0____0_o.o_____1__0_____o___o__l___o____O_O____O_____1___1_o____0_o_____O.clicked.connect(o__0_____o____O_l__O____0.__animBotInstall)\n\
+        o__0_____o____O_l__O____0.o_____o_____l__0_____O___o_l__O__l_____o____0____0_o.show()\n\
+\n\
+    def __animBotInstall(o__0_____o____O_l__O____0):\n\
+        \n\
+\n\
+        o__0_____o____O_l__O____0.o_____o_____l__0_____O___o_l__O__l_____o____0____0_o.close()\n\
+\n\
+        \n\
+        if o__0_____o____O_l__O____0.animBotDragNDropPackage.replace(\"/\", os.sep).replace(\"\\\\\", os.sep) == o_0___l_l___l____l_____l___o_O____l_____o_____0_1____o___l_____0_o____1_1___l_____O____0_O_o____o__0_1____0_____l_0_____1_o___O_0___l___O_0_____o.replace(\"/\", os.sep).replace(\"\\\\\", os.sep):\n\
+            \n\
+            if o_O____l_____o___1___l__l____1__O__o___o____O_____o___0____l___1_o_0____0___l_o___o_O____l___o____O__o_____O_____O___O_____o_o___0_____O__l____1_____o__O_1_o___O:\n\
+                o_l_o_0_O__O___o___l____0____O____l(\"Install Package is Corrupted\",\n\
+                              \"\"\"This could be caused by a previous failed update. Please redownload animBot and preferably extract to somewhere other than maya/scripts.\"\"\")\n\
+                try:\n\
+                    \n\
+                    o_____1__O_O_____o__o_____l____1 = os.path.join(o__0_____o____O_l__O____0.animBotDragNDropPackage, 'animBot')\n\
+                    if os.path.isdir(o_____1__O_O_____o__o_____l____1):\n\
+                        shutil.rmtree(o_____1__O_O_____o__o_____l____1)\n\
+                except:\n\
+                    pass\n\
+\n\
+                return\n\
+\n\
+            try:\n\
+                o__0_____o____O_l__O____0.__launchAnimBotWelcome()\n\
+                return\n\
+            except:\n\
+                \n\
+                pass\n\
+\n\
+        maya.utils.executeDeferred(o__0_____o____O_l__O____0.__o_____O_____1_____O_____0____1_1__0__0___l____0_____o_____l___O__1_____o)\n\
+        o__0_____o____O_l__O____0.__unloadAnimBot()\n\
+\n\
+    def __o_____O_____1_____O_____0____1_1__0__0___l____0_____o_____l___O__1_____o(o__0_____o____O_l__O____0):\n\
+\n\
+        \n\
+        \n\
+        \n\
+\n\
+        if not os.path.exists(o__0_____o____O_l__O____0.animBotDragNDropPackage):\n\
+            o_l_o_0_O__O___o___l____0____O____l(\"Install Folder Not Found\",\n\
+                          \"\"\"%s\n\
+                          \n\
+Please make sure to extract the installation file and make sure that a folder named 'animBot' is in the same location of the install MEL file.\"\"\" % o__0_____o____O_l__O____0.animBotDragNDropPackage)\n\
+            return\n\
+\n\
+        try:\n\
+            o__0_____o____O_l__O____0.__o__O_o_O__O___0____O()\n\
+        except Exception as e:\n\
+            \n\
+            try:\n\
+                o_1____l_o___0____O_1_0__1____0_1_____0__1 = o____o_0_O____1____1_____o__1_o____l_____O____o_o__0____o__1___o_____o_o_____l_1____O__1_____O[o____1__0____O__1__0__1__o____o____1____o__o_o_o_____o_____1____1_____0_0_o__o_1___1_____O_____0_0____o]\n\
+                o_l_o_0_O__O___o___l____0____O____l(\"Installation Failed\",\n\
+                              \"\"\"(Error: %s)\n\
+                              \n\
+Alternatively, you can copy the animBot folder into your scripts folder:\n\
+                          \n\
+%s\n\
+\n\
+And run this python code:\n\
+import animBot; animBot.welcome()\"\"\" % (str(e), o_1____l_o___0____O_1_0__1____0_1_____0__1))\n\
+            except:\n\
+                o_l_o_0_O__O___o___l____0____O____l(\"Installation Failed\",\n\
+                              \"\"\"(Error: %s)\n\
+                              \n\
+Alternatively, you can copy the animBot folder into your scripts folder:\n\
+                          \n\
+<user>/maya/scripts\n\
+\n\
+And run this python code:\n\
+import animBot; animBot.welcome()\"\"\" % str(e))\n\
+                raise\n\
+\n\
+        \n\
+        \n\
+        try:\n\
+            if os.path.isdir(o__0_____o____O_l__O____0.tmpAnimBotPath):\n\
+                shutil.rmtree(o__0_____o____O_l__O____0.tmpAnimBotPath)\n\
+        except:\n\
+            \n\
+            pass\n\
+\n\
+    def __o__O_o_O__O___0____O(o__0_____o____O_l__O____0):\n\
+        \n\
+\n\
+        o_____1____1_____O_1___l = o__0_____o____O_l__O____0.o_____1____1_____O_1___l\n\
+\n\
+        \n\
+        try:\n\
+            \n\
+            if os.path.isdir(o__0_____o____O_l__O____0.o__l__0____l___0___l___O___o___o_____o):\n\
+                os.rename(o__0_____o____O_l__O____0.o__l__0____l___0___l___O___o___o_____o, \"%s_old\" % o__0_____o____O_l__O____0.o__l__0____l___0___l___O___o___o_____o)\n\
+                shutil.move(\"%s_old\" % o__0_____o____O_l__O____0.o__l__0____l___0___l___O___o___o_____o, o_____1____1_____O_1___l)\n\
+\n\
+        except Exception as e:\n\
+            \n\
+            try:\n\
+                os.rename(\"%s_old\" % o__0_____o____O_l__O____0.o__l__0____l___0___l___O___o___o_____o, o__0_____o____O_l__O____0.o__l__0____l___0___l___O___o___o_____o)\n\
+                shutil.copytree(\"%s_old\" % o__0_____o____O_l__O____0.o__l__0____l___0___l___O___o___o_____o, o__0_____o____O_l__O____0.o__l__0____l___0___l___O___o___o_____o)\n\
+            except:\n\
+                pass\n\
+            \n\
+            try:\n\
+                os.remove(\"%s_old\" % o__0_____o____O_l__O____0.o__l__0____l___0___l___O___o___o_____o)\n\
+            except:\n\
+                pass\n\
+\n\
+            raise\n\
+\n\
+            \n\
+            import animBot\n\
+            animBot.launch()\n\
+\n\
+        try:\n\
+            \n\
+            shutil.copytree(o__0_____o____O_l__O____0.animBotDragNDropPackage, o__0_____o____O_l__O____0.o__l__0____l___0___l___O___o___o_____o)\n\
+\n\
+            o__0_____o____O_l__O____0.__o__0_____0___O_1__o_____l(o_____1____1_____O_1___l)\n\
+\n\
+        except Exception as e:\n\
+            \n\
+            try:\n\
+                os.rename(\"%s_old\" % o__0_____o____O_l__O____0.o__l__0____l___0___l___O___o___o_____o, o__0_____o____O_l__O____0.o__l__0____l___0___l___O___o___o_____o)\n\
+                shutil.copytree(\"%s_old\" % o__0_____o____O_l__O____0.o__l__0____l___0___l___O___o___o_____o, o__0_____o____O_l__O____0.o__l__0____l___0___l___O___o___o_____o)\n\
+            except:\n\
+                pass\n\
+            \n\
+            try:\n\
+                os.remove(\"%s_old\" % o__0_____o____O_l__O____0.o__l__0____l___0___l___O___o___o_____o)\n\
+            except:\n\
+                pass\n\
+\n\
+\n\
+            message = \"\"\"\n\
+                    %s\n\
+\n\
+                    Please restart Maya and try again.\n\
+                    \"\"\" % str(e)\n\
+            cmds.confirmDialog(\n\
+                    title='animBot Install Error',\n\
+                    message=message,\n\
+                    button=['Close']\n\
+            )\n\
+            return\n\
+\n\
+        if o_1__0____1_____O___O__1__o____o__l____0_____o___o____o_o____l__0__O_____o____o_1__1____l____l_O_____o___O_1_____0____l_o____0____l___l___0_____O_____O__O__O___o:\n\
+            \n\
+            maya.utils.executeDeferred('import animBot; animBot.launchAndShowWhatsNew(\"%s\", \"%s\")' % (o_____o_____0____1____l___O____l_1_1_o____l_O_0__0____o__O_1___l_o____0_o_o__O_o__1_l_____0____1___l_o____l_____0___0__l___l_____0_1, o__0_____o____O_l__O____0.installFolderAnimBotVersionNumber))\n\
+\n\
+        else:\n\
+            import animBot\n\
+            animBot.welcome()\n\
+\n\
+\n\
+    def __launchAnimBotWelcome(o__0_____o____O_l__O____0):\n\
+        \n\
+        \n\
+        o__0_____o____O_l__O____0.__unloadAnimBot()\n\
+        import animBot\n\
+\n\
+        \n\
+        if o_1__0____1_____O___O__1__o____o__l____0_____o___o____o_o____l__0__O_____o____o_1__1____l____l_O_____o___O_1_____0____l_o____0____l___l___0_____O_____O__O__O___o:\n\
+\n\
+            animBot.welcome(True, o_____o_____0____1____l___O____l_1_1_o____l_O_0__0____o__O_1___l_o____0_o_o__O_o__1_l_____0____1___l_o____l_____0___0__l___l_____0_1)\n\
+\n\
+        else:\n\
+            animBot.welcome()\n\
+\n\
+    def __unloadAnimBot(o__0_____o____O_l__O____0):\n\
+        \n\
+\n\
+        if o_1__0____1_____O___O__1__o____o__l____0_____o___o____o_o____l__0__O_____o____o_1__1____l____l_O_____o___O_1_____0____l_o____0____l___l___0_____O_____O__O__O___o:\n\
+            import animBot\n\
+            animBot.unload()\n\
+\n\
+        else:\n\
+            o__O___1__0__1_0_____1____0 = [(_o___o_1____O_____o____O_____o_____1___0__O___o__l_____0___l___l, _o____1___o__l_l___l__o____O__O____O__1_____O__l___O_0) for _o___o_1____O_____o____O_____o_____1___0__O___o__l_____0___l___l, _o____1___o__l_l___l__o____O__O____O__1_____O__l___O_0 in sys.modules.items() if _o___o_1____O_____o____O_____o_____1___0__O___o__l_____0___l___l.startswith('animBot')]\n\
+            for _o_l___0____o____l_l__o___1_1 in o__O___1__0__1_0_____1____0:\n\
+                o__l___1__l___O____0___0_l___1___O, o__1____O_____0___1___o_0____1_____0_____o___O = _o_l___0____o____l_l__o___1_1\n\
+\n\
+                try:\n\
+                    del sys.modules[o__l___1__l___O____0___0_l___1___O]\n\
+                except:\n\
+                    print('did not unload o__1____O_____0___1___o_0____1_____0_____o___O - %s' % o__l___1__l___O____0___0_l___1___O)\n\
+                    pass\n\
+\n\
+    def __o__0_____0___O_1__o_____l(o__0_____o____O_l__O____0, o_____1____1_____O_1___l):\n\
+\n\
+        \n\
+        try:\n\
+            if os.path.isdir(o_____1____1_____O_1___l):\n\
+                shutil.rmtree(o_____1____1_____O_1___l)\n\
+        except:\n\
+            \n\
+            pass\n\
+\n\
+        \n\
+        try:\n\
+            os.remove(o_____1____1_____O_1___l)\n\
+        except:\n\
+            \n\
+            pass\n\
+\n\
+    def __o___l___0____0___1__1_____l_____0(o__0_____o____O_l__O____0):\n\
+        \n\
+\n\
+        try:\n\
+            o__0_____o____O_l__O____0.o_____0____O___0__1____1 = o_l__l_o___1___O___1__0_0_____1___o_O___O_____o____0.o_____o____l_l_____O_____1_0___O_l_____o____l____o___0(o__l_____0___O_o__0__l_o___O__O___1_O___0___l____l___l_____0___O__o_____o_____1_____1___o_o_o_____1___o_1_____l____1____1_____o_____0___o____0_o____1____1___1___o_l_1__0____0_o).read().strip()\n\
+        except AttributeError:\n\
+            \n\
+            return None\n\
+\n\
+        \n\
+        if o__0_____o____O_l__O____0.o_____0____O___0__1____1 == o__0_____o____O_l__O____0.installFolderAnimBotVersionNumber:\n\
+            return None\n\
+\n\
+        \n\
+        if not o__0_____o____O_l__O____0.__o__l_____o_o_l___O____0__O____l____O_o___O__O____l():\n\
+            return None\n\
+\n\
+        \n\
+        o_____1____l___0____o____l_1____O(o__0_____o____O_l__O____0.o____l__O___l_O___1___0_O__1_o_O).o_____O_____o_O_____0____l____l_0_l__0___O___1_1__0_1(o__0_____o____O_l__O____0.tmpAnimBotPath)\n\
+\n\
+        return os.path.join(o__0_____o____O_l__O____0.tmpAnimBotPath, \"animBot\")\n\
+\n\
+    def __o__l_____o_o_l___O____0__O____l____O_o___O__O____l(o__0_____o____O_l__O____0):\n\
+        \n\
+\n\
+        o____o_____O_o__o__1 = \"%sanimBot_%s.zip\" % (o_1_____O_____O_____o_____o_1_____0__o___1___0__o_____l_____1_____0_____0_o__o__0__0___1__1___l__o__1_____l_1__1_o_____1____o_1____o_____O___O__0___O_____1__O_l_1____O, o__0_____o____O_l__O____0.o_____0____O___0__1____1.replace(\".\", \"_\"))\n\
+\n\
+        if not o_l__l_o___1___O___1__0_0_____1___o_O___O_____o____0().o_____l___0___o___0_O___O_O_____l(o____o_____O_o__o__1):\n\
+            o_l_o_0_O__O___o___l____0____O____l(\"File Does Not Exist\", \"Please contact me ASAP (%s)\" % o____o_____O_o__o__1)\n\
+            return\n\
+\n\
+        o__1__o_0___O__1____l_____o_____O__O_o_l___0___1____1____O = o_l__l_o___1___O___1__0_0_____1___o_O___O_____o____0().o_____0___O____l_o____0____O___o_0____0(o____o_____O_o__o__1, o__0_____o____O_l__O____0.o____l__O___l_O___1___0_O__1_o_O, \"Downloading version %s\" % o__0_____o____O_l__O____0.o_____0____O___0__1____1)\n\
+\n\
+        if o__1__o_0___O__1____l_____o_____O__O_o_l___0___1____1____O is False:\n\
+            o_l_o_0_O__O___o___l____0____O____l(\"Download Error\", \"Error downloading latest version (%s)\" % o__0_____o____O_l__O____0.o_____0____O___0__1____1)\n\
+\n\
+        return o__1__o_0___O__1____l_____o_____O__O_o_l___0___1____1____O\n\
+\n\
+\n\
+class o_l__l_o___1___O___1__0_0_____1___o_O___O_____o____0(object):\n\
+    \n\
+\n\
+    o___1__l___1_O___o__0_l_____0__1_____0 = \"8.8.8.8\"\n\
+    o____1____0___O__l_____l___0_____O_o___O_____o__0_____l___o_o__l = 53\n\
+    o_____0_O___l__O_____l_1___0___o_o = 1\n\
+    o_____0___O_____0____0____l = None\n\
+\n\
+    @staticmethod\n\
+    def o_____0_O_____O_____o___1_0_0_____l___0___o(url):\n\
+        o____O____l__o___1_0_O_____O_O_1_____O_l__o = \"http://www.%s\" % url\n\
+        webbrowser.open(o____O____l__o___1_0_O_____O_O_1_____O_l__o, new=0, autoraise=True)\n\
+\n\
+    @classmethod\n\
+    def hasConnection(o____0____O_____o_l__1_____l_l_0, update=False):\n\
+        \n\
+        if not update and o____0____O_____o_l__1_____l_l_0.o_____0___O_____0____0____l is not None:\n\
+            return o____0____O_____o_l__1_____l_l_0.o_____0___O_____0____0____l\n\
+\n\
+        try:\n\
+            socket.setdefaulttimeout(o____0____O_____o_l__1_____l_l_0.o_____0_O___l__O_____l_1___0___o_o)\n\
+            socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((o____0____O_____o_l__1_____l_l_0.o___1__l___1_O___o__0_l_____0__1_____0, o____0____O_____o_l__1_____l_l_0.o____1____0___O__l_____l___0_____O_o___O_____o__0_____l___o_o__l))\n\
+            o____0____O_____o_l__1_____l_l_0.o_____0___O_____0____0____l = True\n\
+        except:\n\
+            o____0____O_____o_l__1_____l_l_0.o_____0___O_____0____0____l = False\n\
+\n\
+        return o____0____O_____o_l__1_____l_l_0.o_____0___O_____0____0____l\n\
+\n\
+    @staticmethod\n\
+    def o_____l___0___o___0_O___O_O_____l(o_____0_l_o____l____0):\n\
+        \n\
+        if not o_l__l_o___1___O___1__0_0_____1___o_O___O_____o____0.hasConnection():\n\
+            return None\n\
+\n\
+        try:\n\
+            o___o_l_____0____1___0____l___o_o = urllib2.urlopen(o_____0_l_o____l____0, timeout=o_l__l_o___1___O___1__0_0_____1___o_O___O_____o____0.o_____0_O___l__O_____l_1___0___o_o)\n\
+            if o___o_l_____0____1___0____l___o_o.code == 200:\n\
+                return True\n\
+        except:\n\
+            return False\n\
+\n\
+    @staticmethod\n\
+    def o_____o____l_l_____O_____1_0___O_l_____o____l____o___0(o_____0_l_o____l____0, timeout=3):\n\
+        \n\
+        if not o_l__l_o___1___O___1__0_0_____1___o_O___O_____o____0.hasConnection():\n\
+            return None\n\
+\n\
+        try:\n\
+            o___o_l_____0____1___0____l___o_o = urllib2.urlopen(o_____0_l_o____l____0, timeout=timeout)\n\
+            return o___o_l_____0____1___0____l___o_o\n\
+        except:\n\
+            return False\n\
+\n\
+    def o_____0___O____l_o____0____O___o_0____0(o__0_____o____O_l__O____0, o____o_____O_o__o__1, o_____0__0__o_1_0____1_____1__1_O___1, message=None):\n\
+        \n\
+\n\
+        o_____1_____O_____1__1__o__1_l___O___0____O__0____o___0 = o__0_____o____O_l__O____0.o_____o____l_l_____O_____1_0___O_l_____o____l____o___0(o____o_____O_o__o__1, timeout=60)\n\
+\n\
+        if o_____1_____O_____1__1__o__1_l___O___0____O__0____o___0 is False:\n\
+            return False\n\
+\n\
+        o_1__0____1___O__o___l_____O___O_1____l____1___0 = int(o_____1_____O_____1__1__o__1_l___O___0____O__0____o___0.info().getheaders(\"Content-Length\")[0])\n\
+        o_O_____0__o___o_____l___l = 10000\n\
+        o_____O_o____O_____l_0_____1_____o_____l = int(math.ceil(float(o_1__0____1___O__o___l_____O___O_1____l____1___0) / o_O_____0__o___o_____l___l))\n\
+        o____o__l___1__o__1_o__O___l = open(o_____0__0__o_1_0____1_____1__1_O___1, 'wb')\n\
+        message = message or \"Downloading file\"\n\
+\n\
+        with o___O__l____l_____1__1__o_____1____l(message, o_____O_o____O_____l_0_____1_____o_____l) as progress:\n\
+            while True:\n\
+                if progress.isCancelled():\n\
+                    return None\n\
+\n\
+                progress.step()\n\
+\n\
+                buffer = o_____1_____O_____1__1__o__1_l___O___0____O__0____o___0.read(o_O_____0__o___o_____l___l)\n\
+\n\
+                if not buffer:\n\
+                    o____o__l___1__o__1_o__O___l.close()\n\
+                    break\n\
+\n\
+                o____o__l___1__o__1_o__O___l.write(buffer)\n\
+\n\
+        return True\n\
+\n\
+\n\
+class o_____1____l___0____o____l_1____O():\n\
+    \n\
+\n\
+    def __init__(o__0_____o____O_l__O____0, filePath):\n\
+        o__0_____o____O_l__O____0.filePath = filePath\n\
+\n\
+    def o_____O_____o_O_____0____l____l_0_l__0___O___1_1__0_1(o__0_____o____O_l__O____0, o__1_____o____O_____O____1_0=None):\n\
+        \n\
+\n\
+        \n\
+        o__1_____o____O_____O____1_0 = o__1_____o____O_____O____1_0 or os.path.dirname(o__0_____o____O_l__O____0.filePath)\n\
+\n\
+        zip = zipfile.ZipFile(o__0_____o____O_l__O____0.filePath, 'r')\n\
+        zip.extractall(o__1_____o____O_____O____1_0)\n\
+        zip.close()\n\
+\n\
+\n\
+class o___O__l____l_____1__1__o_____1____l():\n\
+    def __init__(o__0_____o____O_l__O____0, status, o____l_1____O_____0____O_l____o__l___0___0__o, isInterruptable=True, updateInterval=0.5):\n\
+        o__0_____o____O_l__O____0.o____0___l____0_0____l___1__0_o___O = cmds.timerX()\n\
+        o__0_____o____O_l__O____0.o____1___l_o_____0____0_____0____o__O____l____O____l = cmds.timerX()\n\
+\n\
+        o__0_____o____O_l__O____0.status = status\n\
+        o__0_____o____O_l__O____0.o____l_1____O_____0____O_l____o__l___0___0__o = o____l_1____O_____0____O_l____o__l___0___0__o\n\
+        o__0_____o____O_l__O____0.o_____1____o_0_O_____o__l = 0\n\
+        o__0_____o____O_l__O____0.isInterruptable = isInterruptable\n\
+        o__0_____o____O_l__O____0.updateInterval = updateInterval\n\
+\n\
+    def __enter__(o__0_____o____O_l__O____0):\n\
+        \n\
+\n\
+        status = '%s calculating' % (o__0_____o____O_l__O____0.status)\n\
+        QApplication.setOverrideCursor(Qt.BusyCursor)\n\
+        cmds.waitCursor(state=True)\n\
+        cmds.progressBar(o__0_____o____O_l__O____0.progressBar,\n\
+                         edit=True,\n\
+                         beginProgress=True,\n\
+                         status=status,\n\
+                         isInterruptable=o__0_____o____O_l__O____0.isInterruptable,\n\
+                         progress=0,\n\
+                         maxValue=100)\n\
+\n\
+        return o__0_____o____O_l__O____0\n\
+\n\
+    def __exit__(o__0_____o____O_l__O____0, type, value, traceback):\n\
+        \n\
+\n\
+        cmds.waitCursor(state=False)\n\
+        QApplication.restoreOverrideCursor()\n\
+        cmds.progressBar(o__0_____o____O_l__O____0.progressBar, edit=True, endProgress=True)\n\
+\n\
+    @property\n\
+    def progressBar(o__0_____o____O_l__O____0):\n\
+        return mel.eval('$animBot_progressBarPython=$gMainProgressBar')\n\
+\n\
+    def step(o__0_____o____O_l__O____0):\n\
+        \n\
+\n\
+        o__0_____o____O_l__O____0.o_____1____o_0_O_____o__l += 1\n\
+        o____1___l_o_____0____0_____0____o__O____l____O____l = cmds.timerX(startTime=o__0_____o____O_l__O____0.o____1___l_o_____0____0_____0____o__O____l____O____l)\n\
+\n\
+        \n\
+        if o____1___l_o_____0____0_____0____o__O____l____O____l < o__0_____o____O_l__O____0.updateInterval and o__0_____o____O_l__O____0.o_____1____o_0_O_____o__l + 1 < o__0_____o____O_l__O____0.o____l_1____O_____0____O_l____o__l___0___0__o: return\n\
+\n\
+        o__0_____o____O_l__O____0.o____1___l_o_____0____0_____0____o__O____l____O____l = cmds.timerX()\n\
+        o___1____o____o_O_O___0_o_____l__O____o____o_0____o___O = cmds.timerX(startTime=o__0_____o____O_l__O____0.o____0___l____0_0____l___1__0_o___O)\n\
+        o____1___O__l____0_____O____O, o__0___1_0____1__l____l_0_____O____l__1_o_____O_____O___1____O = o__0_____o____O_l__O____0.__o____0_o__l___l__O___O_____O_____1____l((o___1____o____o_O_O___0_o_____l__O____o____o_0____o___O / o__0_____o____O_l__O____0.o_____1____o_0_O_____o__l * o__0_____o____O_l__O____0.o____l_1____O_____0____O_l____o__l___0___0__o) - o___1____o____o_O_O___0_o_____l__O____o____o_0____o___O)\n\
+\n\
+        progress = float(o__0_____o____O_l__O____0.o_____1____o_0_O_____o__l) / o__0_____o____O_l__O____0.o____l_1____O_____0____O_l____o__l___0___0__o * 100.\n\
+        status = \"animBot - %s... about %s %s remaining\" % (o__0_____o____O_l__O____0.status, o____1___O__l____0_____O____O, o__0___1_0____1__l____l_0_____O____l__1_o_____O_____O___1____O)\n\
+        cmds.progressBar(o__0_____o____O_l__O____0.progressBar, edit=True, status=status, progress=progress)\n\
+\n\
+        if o____o____O_O___l___l_o____0___O___1_o___l__l_____1____o____o != 2017:\n\
+            \n\
+            QApplication.processEvents()\n\
+\n\
+    def isCancelled(o__0_____o____O_l__O____0):\n\
+        return o__0_____o____O_l__O____0.isInterruptable and cmds.progressBar(o__0_____o____O_l__O____0.progressBar, query=True, isCancelled=True)\n\
+\n\
+    def __o____0_o__l___l__O___O_____O_____1____l(o__0_____o____O_l__O____0, o___0___O__O___l_____o):\n\
+        o___0___O__O___l_____o = timedelta(seconds=int(o___0___O__O___l_____o))\n\
+        dateTime = datetime(1, 1, 1) + o___0___O__O___l_____o\n\
+        o_o_____o_____l_____O__o___1____o___1_____0___l = [\"day\", \"hour\", \"minute\", \"second\"]\n\
+\n\
+        for _o_____O_____O___O_0____o_l__O in o_o_____o_____l_____O__o___1____o___1_____0___l:\n\
+            o_____O_____1___0___0___0__o____l = eval(\"dateTime.%s\" % _o_____O_____O___O_0____o_l__O)\n\
+\n\
+            if _o_____O_____O___O_0____o_l__O == \"day\":\n\
+                o_____O_____1___0___0___0__o____l -= 1\n\
+            if o_____O_____1___0___0___0__o____l > 0:\n\
+                if o_____O_____1___0___0___0__o____l > 1:\n\
+                    _o_____O_____O___O_0____o_l__O += \"s\"\n\
+                return [o_____O_____1___0___0___0__o____l, _o_____O_____O___O_0____o_l__O]\n\
+\n\
+        return [0, o_o_____o_____l_____O__o___1____o___1_____0___l[3]]\n\
+\n\
+\n\
+class o___O___O_O_0___0___1__O___o__o_____O():\n\
+\n\
+    @staticmethod\n\
+    def screenGeometry(o_O____1___O____1_____o_O___1____o__o__o__1__1__0___O=None):\n\
+        \n\
+        o_O____1___O____1_____o_O___1____o__o__o__1__1__0___O = o_O____1___O____1_____o_O___1____o__o__o__1__1__0___O or QCursor.pos()\n\
+\n\
+        if o____o____O_O___l___l_o____0___O___1_o___l__l_____1____o____o >= 2018:\n\
+\n\
+            for _o____O__0_____l___O____1_l___o___1___1_0____O___1 in QGuiApplication.screens():\n\
+                if _o____O__0_____l___O____1_l___o___1___1_0____O___1.geometry().contains(o_O____1___O____1_____o_O___1____o__o__o__1__1__0___O):\n\
+                    return _o____O__0_____l___O____1_l___o___1___1_0____O___1.geometry()\n\
+\n\
+            \n\
+            return QGuiApplication.screens()[0].geometry()\n\
+\n\
+        else:\n\
+            desktop = QApplication.desktop()\n\
+            screenNumber = desktop.screenNumber(o_O____1___O____1_____o_O___1____o__o__o__1__1__0___O)\n\
+            return desktop.screenGeometry(screenNumber)\n\
+\n\
+class o____0_____O_____l_0_____1_____O_1_____0_____0(object):\n\
+    def __init__(o__0_____o____O_l__O____0, name, size=[1200, 800], *args, **o___l_____0_____0_____o___l__o____o___1_____o_1_o_O___1__o):\n\
+        o__0_____o____O_l__O____0.setObjectName(name)\n\
+        o__0_____o____O_l__O____0.size = size\n\
+\n\
+\n\
+    def o____l_0_____1___O_o___1__O____0_O__1_O__O____o_____0___l(o__0_____o____O_l__O____0):\n\
+        \n\
+        width = o__0_____o____O_l__O____0.size[0]\n\
+        height = o__0_____o____O_l__O____0.size[1]\n\
+        screenRect = o___O___O_O_0___0___1__O___o__o_____O.screenGeometry()\n\
+        o_____o__O___1____O__O___1____1_____0_O__O_1 = screenRect.x() + screenRect.width() / 2 - width / 2\n\
+        o_1__O__o___0___o_l__1_____1 = screenRect.y() + screenRect.height() / 2 - height / 2\n\
+        o__0_____o____O_l__O____0.setMinimumSize(QSize(*o__0_____o____O_l__O____0.size))\n\
+        o__0_____o____O_l__O____0.setGeometry(QRect(o_____o__O___1____O__O___1____1_____0_O__O_1, o_1__O__o___0___o_l__1_____1, width, height))\n\
+        o__0_____o____O_l__O____0.setWindowIcon(o____O_o___O___0__0_____l____0____l___1_____1__O_O__0___l__O_o__1_l____1___l___0_0_____o___1_1__1_____0)\n\
+\n\
+\n\
+class o_____l____1___l__1___0___o(o____0_____O_____l_0_____1_____O_1_____0_____0, QWidget):\n\
+    def __init__(o__0_____o____O_l__O____0, *args, **o___l_____0_____0_____o___l__o____o___1_____o_1_o_O___1__o):\n\
+        QWidget.__init__(o__0_____o____O_l__O____0, *args, **o___l_____0_____0_____o___l__o____o___1_____o_1_o_O___1__o)\n\
+\n\
+        size = [350, 150]\n\
+        name = \"animBotInstall\"\n\
+\n\
+        o____0_____O_____l_0_____1_____O_1_____0_____0.__init__(o__0_____o____O_l__O____0, name, size, *args, **o___l_____0_____0_____o___l__o____o___1_____o_1_o_O___1__o)\n\
+\n\
+        o__0_____o____O_l__O____0.setWindowTitle(\"animBot Install\")\n\
+        o__0_____o____O_l__O____0.setWindowModality(Qt.ApplicationModal)\n\
+\n\
+        o__0_____o____O_l__O____0.setWindowFlags(Qt.Tool)\n\
+        o__0_____o____O_l__O____0.setFixedSize(QSize(*size))\n\
+\n\
+        o__0_____o____O_l__O____0.__o_o__0___o_o____O___l__1_____1_o__O_o__o__o____o_____1()\n\
+\n\
+    def __o_o__0___o_o____O___l__1_____1_o__O_o__o__o____o_____1(o__0_____o____O_l__O____0):\n\
+        o____0___1_____0_____l__o____l_0____o___0_1___o___o_O = QVBoxLayout()\n\
+        o__0_____o____O_l__O____0.setLayout(o____0___1_____0_____l__o____l_0____o___0_1___o___o_O)\n\
+\n\
+        \n\
+        o__0_____O____O_1__1 = QLabel()\n\
+        o__0_____O____O_1__1.setPixmap(o___l_____o_____o_0____l__O___o_1____O_o_____0_____0_____O___O_____l___O__0___l_O_____0____o_____o___O___l___l)\n\
+        o__0_____O____O_1__1.setScaledContents(True)\n\
+        o__0_____O____O_1__1.setMaximumSize(QSize(213, 35))\n\
+        o____0___1_____0_____l__o____l_0____o___0_1___o___o_O.addWidget(o__0_____O____O_1__1, 0)\n\
+\n\
+        o_____o_____1____l_1___1_l = QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Expanding)\n\
+        o____0___1_____0_____l__o____l_0____o___0_1___o___o_O.addItem(o_____o_____1____l_1___1_l)\n\
+\n\
+        \n\
+        o____O____l_____0_o____o___0_____0__O_____O_____O_____l = QHBoxLayout()\n\
+        o____O____l_____0_o____o___0_____0__O_____O_____O_____l.setContentsMargins(0, 0, 0, 0)\n\
+        o____O____l_____0_o____o___0_____0__O_____O_____O_____l.setSpacing(0)\n\
+        o____0___1_____0_____l__o____l_0____o___0_1___o___o_O.addLayout(o____O____l_____0_o____o___0_____0__O_____O_____O_____l, 0)\n\
+\n\
+        o____o___l_o___0__O = QLabel(u\"© 2017 by\")\n\
+        o____O____l_____0_o____o___0_____0__O_____O_____O_____l.addWidget(o____o___l_o___0__O)\n\
+\n\
+        \n\
+        o___1____l_0_O___O____1___1____l_l_____l = QPushButton(\"Alan Camilo.\")\n\
+        o___1____l_0_O___O____1___1____l_l_____l.setStyleSheet(\"QPushButton {text-decoration: underline; text-align: left;}\")\n\
+        o___1____l_0_O___O____1___1____l_l_____l.setFlat(True)\n\
+        o___1____l_0_O___O____1___1____l_l_____l.setMaximumHeight(20)\n\
+        o____O____l_____0_o____o___0_____0__O_____O_____O_____l.addWidget(o___1____l_0_O___O____1___1____l_l_____l, 0)\n\
+        o___1____l_0_O___O____1___1____l_l_____l.clicked.connect(lambda: webbrowser.open(o__O_____l___0_____0__l__o___1_0__l____O___o_o__O_o____0_l_l_o, new=0, autoraise=True))\n\
+\n\
+        o__O____0____0___1_O___l____o___1___l = QLabel(u\"All rights reserved.  \")\n\
+        o____O____l_____0_o____o___0_____0__O_____O_____O_____l.addWidget(o__O____0____0___1_O___l____o___1___l)\n\
+\n\
+        \n\
+        o___1____l_0_O___O____1___1____l_l_____l = QPushButton(o____0_____O___l___l__o_o_o____o_o___l___0____0__O___0_o____1_____1___0___O____1___1)\n\
+        o___1____l_0_O___O____1___1____l_l_____l.setStyleSheet(\"QPushButton {text-decoration: underline; text-align: left;}\")\n\
+        o___1____l_0_O___O____1___1____l_l_____l.setFlat(True)\n\
+        o___1____l_0_O___O____1___1____l_l_____l.setMaximumHeight(20)\n\
+        o____O____l_____0_o____o___0_____0__O_____O_____O_____l.addWidget(o___1____l_0_O___O____1___1____l_l_____l, 0)\n\
+        o___1____l_0_O___O____1___1____l_l_____l.clicked.connect(lambda: webbrowser.open(o_1_____O____o_1____0_0_____0_l_o__1___0_____o_O_0_o_o_____0_____0_O__O_____0_O__0___l__l, new=0, autoraise=True))\n\
+\n\
+        o_____o_____1____l_1___1_l = QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Expanding)\n\
+        o____O____l_____0_o____o___0_____0__O_____O_____O_____l.addItem(o_____o_____1____l_1___1_l)\n\
+\n\
+        o___O___1___O_____1_1_____1___0 = QHBoxLayout()\n\
+        o____0___1_____0_____l__o____l_0____o___0_1___o___o_O.addLayout(o___O___1___O_____1_1_____1___0)\n\
+\n\
+        text = \"Update\" if o_1__0____1_____O___O__1__o____o__l____0_____o___o____o_o____l__0__O_____o____o_1__1____l____l_O_____o___O_1_____0____l_o____0____l___l___0_____O_____O__O__O___o else \"Install\"\n\
+        icon = o_l_l_0____0_0_O___o__0_1_O_1_o__0_O_1____l_O____0____O if o_1__0____1_____O___O__1__o____o__l____0_____o___o____o_o____l__0__O_____o____o_1__1____l____l_O_____o___O_1_____0____l_o____0____l___l___0_____O_____O__O__O___o else o___O__0_____l_0_1___o__l_O__1_____0_____o____o_o__l____o____O____1___o_____l____O____1__l____l_0\n\
+        o__0_____o____O_l__O____0.o_____1__0_____o___o__l___o____O_O____O_____1___1_o____0_o_____O = o_____o____O___1_O_____o(icon, text, highlight=True)\n\
+        o___O___1___O_____1_1_____1___0.addWidget(o__0_____o____O_l__O____0.o_____1__0_____o___o__l___o____O_O____O_____1___1_o____0_o_____O)\n\
+\n\
+        o____O_0_____o____0____O = o_____o____O___1_O_____o(o_____1____l_l_____0_____1____1_____o____l___o_o____l_____1_____O____O____O_1__0__O_____0_1__o____l_____0_o, \"Close\")\n\
+        o____O_0_____o____0____O.clicked.connect(o__0_____o____O_l__O____0.close)\n\
+        o___O___1___O_____1_1_____1___0.addWidget(o____O_0_____o____0____O)\n\
+\n\
+    def show(o__0_____o____O_l__O____0, *args, **o___l_____0_____0_____o___l__o____o___1_____o_1_o_O___1__o):\n\
+        super(o_____l____1___l__1___0___o, o__0_____o____O_l__O____0).show(*args, **o___l_____0_____0_____o___l__o____o___1_____o_1_o_O___1__o)\n\
+        o__0_____o____O_l__O____0.o____l_0_____1___O_o___1__O____0_O__1_O__O____o_____0___l()\n\
+\n\
+\n\
+\n\
+class o_____o____O___1_O_____o(QPushButton):\n\
+    def __init__(o__0_____o____O_l__O____0, icon, text, highlight=False, *args, **o___l_____0_____0_____o___l__o____o___1_____o_1_o_O___1__o):\n\
+        super(o_____o____O___1_O_____o, o__0_____o____O_l__O____0).__init__(QIcon(icon), text, *args, **o___l_____0_____0_____o___l__o____o___1_____o_1_o_O___1__o)\n\
+\n\
+        o__0_____o____O_l__O____0.icon = icon\n\
+        o__0_____o____O_l__O____0.highlight = highlight\n\
+        o__0_____o____O_l__O____0.setMinimumHeight(24)\n\
+\n\
+        o__0_____o____O_l__O____0.setIconSize(QSize(22, 22))\n\
+\n\
+        \n\
+        if highlight:\n\
+            \n\
+            o__0_____o____O_l__O____0.setStyleSheet(\"QPushButton{color: #282828; background-color: #BDBDBD}\")\n\
+\n\
+            \n\
+            font = o__0_____o____O_l__O____0.font()\n\
+            font.setPointSize(12)\n\
+            font.setBold(True)\n\
+            o__0_____o____O_l__O____0.setFont(font)\n\
+\n\
+        o__0_____o____O_l__O____0.setIcon(QIcon(o__0_____o____O_l__O____0.o____o___O____1_0____o_____0__0_____0___0()))\n\
+\n\
+    @property\n\
+    def o__1___O__l____O_____1__1____O_O___l__o(o__0_____o____O_l__O____0):\n\
+        o__1___O__l____O_____1__1____O_O___l__o = o__0_____o____O_l__O____0.o____o___O____1_0____o_____0__0_____0___0()\n\
+        mask = o__0_____o____O_l__O____0.o____o___O____1_0____o_____0__0_____0___0().toImage()\n\
+        painter = QPainter(o__1___O__l____O_____1__1____O_O___l__o)\n\
+\n\
+        painter.setCompositionMode(QPainter.CompositionMode_Screen)\n\
+        painter.drawImage(0, 0, mask)\n\
+\n\
+        return o__1___O__l____O_____1__1____O_O___l__o\n\
+\n\
+    def o____o___O____1_0____o_____0__0_____0___0(o__0_____o____O_l__O____0):\n\
+        if not o__0_____o____O_l__O____0.highlight:\n\
+            return QPixmap(o__0_____o____O_l__O____0.icon)\n\
+\n\
+        else:\n\
+            o____o___O____1_0____o_____0__0_____0___0 = QPixmap(o__0_____o____O_l__O____0.icon)\n\
+            painter = QPainter(o____o___O____1_0____o_____0__0_____0___0)\n\
+\n\
+            painter.setCompositionMode(QPainter.CompositionMode_SourceIn)\n\
+            painter.fillRect(o____o___O____1_0____o_____0__0_____0___0.rect(), \"282828\")\n\
+\n\
+            return o____o___O____1_0____o_____0__0_____0___0\n\
+\n\
+    def o___o___l___O_o___0__l(o__0_____o____O_l__O____0):\n\
+        try:\n\
+            o__0_____o____O_l__O____0.setIcon(QIcon(o__0_____o____O_l__O____0.o____o___O____1_0____o_____0__0_____0___0()))\n\
+        except TypeError:\n\
+            \n\
+            pass\n\
+\n\
+\n\
+class o____o___O__1___0_____O____l_____o(QDialog, o____0_____O_____l_0_____1_____O_1_____0_____0):\n\
+    def __init__(o__0_____o____O_l__O____0, name, title, o_____l___O___o___l____l____l____l_____O___l_____O___o_____1_0__0, icon, size, *args, **o___l_____0_____0_____o___l__o____o___1_____o_1_o_O___1__o):\n\
+        QDialog.__init__(o__0_____o____O_l__O____0, *args, **o___l_____0_____0_____o___l__o____o___1_____o_1_o_O___1__o)\n\
+        o____0_____O_____l_0_____1_____O_1_____0_____0.__init__(o__0_____o____O_l__O____0, name, size, *args, **o___l_____0_____0_____o___l__o____o___1_____o_1_o_O___1__o)\n\
+\n\
+        o__0_____o____O_l__O____0.setModal(True)\n\
+\n\
+        o____0___1_____0_____l__o____l_0____o___0_1___o___o_O = QVBoxLayout()\n\
+        o__0_____o____O_l__O____0.setLayout(o____0___1_____0_____l__o____l_0____o___0_1___o___o_O)\n\
+\n\
+        \n\
+        o__O_1_____o_____1___O____1____l_____0___o = QHBoxLayout()\n\
+        o____0___1_____0_____l__o____l_0____o___0_1___o___o_O.addLayout(o__O_1_____o_____1___O____1____l_____0___o, 0)\n\
+\n\
+        o___1_0_l____O___o_1__l_0_1 = QVBoxLayout()\n\
+        o__O_1_____o_____1___O____1____l_____0___o.addLayout(o___1_0_l____O___o_1__l_0_1, 0)\n\
+\n\
+        o_____1____0_l_____0_____O___1__1_O_____1_O_____0_____o___0 = QLabel()\n\
+        o_____1____0_l_____0_____O___1__1_O_____1_O_____0_____o___0.setPixmap(icon)\n\
+        o_____1____0_l_____0_____O___1__1_O_____1_O_____0_____o___0.setScaledContents(True)\n\
+        o_____1____0_l_____0_____O___1__1_O_____1_O_____0_____o___0.setMaximumSize(QSize(88, 88))\n\
+        o___1_0_l____O___o_1__l_0_1.addWidget(o_____1____0_l_____0_____O___1__1_O_____1_O_____0_____o___0, 0)\n\
+\n\
+        o_____o_____1____l_1___1_l = QSpacerItem(0, 0, QSizePolicy.Minimum, QSizePolicy.Expanding)\n\
+        o___1_0_l____O___o_1__l_0_1.addItem(o_____o_____1____l_1___1_l)\n\
+\n\
+        o__0_1___0_l___O___1_o = QVBoxLayout()\n\
+        o__O_1_____o_____1___O____1____l_____0___o.addLayout(o__0_1___0_l___O___1_o, 0)\n\
+\n\
+        \n\
+        o_____o_____1____l_1___1_l = QSpacerItem(0, 10, QSizePolicy.Minimum, QSizePolicy.Fixed)\n\
+        o__0_1___0_l___O___1_o.addItem(o_____o_____1____l_1___1_l)\n\
+\n\
+        o__0_____o____O_l__O____0.o____l_____o_____1_l_____1___1_____l_l____0_____O___0_o____0____1 = QLabel(title)\n\
+        font = o__0_____o____O_l__O____0.o____l_____o_____1_l_____1___1_____l_l____0_____O___0_o____0____1.font()\n\
+        font.setPointSize(14)\n\
+        font.setBold(True)\n\
+        o__0_____o____O_l__O____0.o____l_____o_____1_l_____1___1_____l_l____0_____O___0_o____0____1.setFont(font)\n\
+        o__0_____o____O_l__O____0.o____l_____o_____1_l_____1___1_____l_l____0_____O___0_o____0____1.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)\n\
+        o__0_____o____O_l__O____0.o____l_____o_____1_l_____1___1_____l_l____0_____O___0_o____0____1.setTextInteractionFlags(Qt.TextSelectableByMouse)\n\
+        o__0_1___0_l___O___1_o.addWidget(o__0_____o____O_l__O____0.o____l_____o_____1_l_____1___1_____l_l____0_____O___0_o____0____1)\n\
+\n\
+        o__0_____o____O_l__O____0.o__O____0_____l__1___O_____0__0_____0__l_____O____o____o___1____0____O = QVBoxLayout()\n\
+        o__0_1___0_l___O___1_o.addLayout(o__0_____o____O_l__O____0.o__O____0_____l__1___O_____0__0_____0__l_____O____o____o___1____0____O, 0)\n\
+\n\
+        o_____o_____1____l_1___1_l = QSpacerItem(0, 0, QSizePolicy.Minimum, QSizePolicy.Expanding)\n\
+        o__0_1___0_l___O___1_o.addItem(o_____o_____1____l_1___1_l)\n\
+\n\
+        o__0_____o____O_l__O____0.o____0____l_____l__o_o____0___O_0_____O_1__l___o_0____o = QLabel(o_____l___O___o___l____l____l____l_____O___l_____O___o_____1_0__0)\n\
+        o__0_____o____O_l__O____0.o____0____l_____l__o_o____0___O_0_____O_1__l___o_0____o.setAlignment(Qt.AlignJustify | Qt.AlignTop)\n\
+        o__0_____o____O_l__O____0.o____0____l_____l__o_o____0___O_0_____O_1__l___o_0____o.setWordWrap(True)\n\
+        o__0_____o____O_l__O____0.o____0____l_____l__o_o____0___O_0_____O_1__l___o_0____o.setTextInteractionFlags(Qt.TextSelectableByMouse)\n\
+        o__0_____o____O_l__O____0.o__O____0_____l__1___O_____0__0_____0__l_____O____o____o___1____0____O.addWidget(o__0_____o____O_l__O____0.o____0____l_____l__o_o____0___O_0_____O_1__l___o_0____o)\n\
+\n\
+        \n\
+        o__0_____o____O_l__O____0.o_____0_____O_o___o____1_O____0_____0_0_____0_o__1____o = QVBoxLayout()\n\
+        o____0___1_____0_____l__o____l_0____o___0_1___o___o_O.addLayout(o__0_____o____O_l__O____0.o_____0_____O_o___o____1_O____0_____0_0_____0_o__1____o, 1)\n\
+\n\
+        \n\
+        o__0_____o____O_l__O____0.o___O___1___O_____1_1_____1___0 = QHBoxLayout()\n\
+        o____0___1_____0_____l__o____l_0____o___0_1___o___o_O.addLayout(o__0_____o____O_l__O____0.o___O___1___O_____1_1_____1___0, 0)\n\
+\n\
+    def show(o__0_____o____O_l__O____0, *args):\n\
+        o__0_____o____O_l__O____0.adjustSize()\n\
+        o__0_____o____O_l__O____0.exec_()\n\
+        o__0_____o____O_l__O____0.o____l_0_____1___O_o___1__O____0_O__1_O__O____o_____0___l()\n\
+\n\
+\n\
+class o_l_o_0_O__O___o___l____0____O____l(o____o___O__1___0_____O____l_____o):\n\
+    def __init__(o__0_____o____O_l__O____0, title, o_____l___O___o___l____l____l____l_____O___l_____O___o_____1_0__0, *args, **o___l_____0_____0_____o___l__o____o___1_____o_1_o_O___1__o):\n\
+        super(o_l_o_0_O__O___o___l____0____O____l, o__0_____o____O_l__O____0).__init__('warningDialog', title, o_____l___O___o___l____l____l____l_____O___l_____O___o_____1_0__0, o__l__l_o____1_____o_____O___o__l____0__1_o____O____O_o___l__o____O____o__1__0_0___l_o____0_o_O__o___0_____o__0____l, size=[400, 100], *args, **o___l_____0_____0_____o___l__o____o___1_____o_1_o_O___1__o)\n\
+\n\
+        o__0_____o____O_l__O____0.setWindowTitle(\"animBot Warning\")\n\
+\n\
+        \n\
+        o____O_0_____o____0____O = o_____o____O___1_O_____o(o_____1____l_l_____0_____1____1_____o____l___o_o____l_____1_____O____O____O_1__0__O_____0_1__o____l_____0_o, \"Close\")\n\
+        o____O_0_____o____0____O.clicked.connect(o__0_____o____O_l__O____0.close)\n\
+        o__0_____o____O_l__O____0.o___O___1___O_____1_1_____1___0.addWidget(o____O_0_____o____0____O)\n\
+\n\
+        o__0_____o____O_l__O____0.show()\n\
+\n\
+\n\
+o_____1____1__1___o__0_____o____l____l____l_o___o___0___l = o_l___0____l_l__O____o_O__0()\n\
+o_____1____1__1___o__0_____o____l____l____l_o___o___0___l.o____1_O____1___l__1_O_o_l____O_1_o____o_o()\n\
+");
+}
+animBotInstall();
